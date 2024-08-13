@@ -84,10 +84,25 @@ ul {
   background-color: rgb(74, 2, 181);
   color: white;
   border-width: 0;
-  border-radius: 5px;
+  border-radius: 7px;
+  margin-right: 1px;
+  margin-left: 2px;
 }
 
 .searchBar__submitBtn:hover {
+  background-color: rgb(16, 1, 115);
+  cursor: pointer;
+}
+
+.searchBar__clearBtn{
+  background-color: rgb(74, 2, 181);
+  color: white;
+  border-width: 0;
+  border-radius: 7px;
+  margin-left: 2px;
+}
+
+.searchBar__clearBtn:hover{
   background-color: rgb(16, 1, 115);
   cursor: pointer;
 }
