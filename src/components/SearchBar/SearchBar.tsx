@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import _ from "lodash";
-import { useDispatch, useSelector } from "react-redux";
-import {  clearAutocompleteSuggestion,
+import {
+  clearAutocompleteSuggestion,
   clearFetchedResults,
-  fetchAutocompleteSuggestions,fetchBooks } from "../slices/SearchSlice";
+  fetchAutocompleteSuggestions,
+  fetchBooks,
+} from "../slices/SearchSlice";
 import AutocompleteDropDown from "../AutocompleteDropDown/AutocompleteDropDown";
-
-
-//debounce - delay the execution of a function
-// throttle - limit the frequency of a fucntion call
+import "./SearchBar.css";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 export default function SearchBar() {
-  const [inputValue, setInputValue] = useState("");
-  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
-  const [selectedAutocompleteOptionIdx, setSelectedAutocompleteOptionIdx] = useState(-1);
-  const dispatch = useDispatch();
-  const searchElRef = useRef(null);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState<boolean>(false);
+  const [selectedAutocompleteOptionIdx, setSelectedAutocompleteOptionIdx] =
+    useState<number>(-1);
+  const dispatch = useAppDispatch();
+  const searchElRef = useRef<HTMLDivElement | null>(null);
 
-  const autocompleteSugestions = useSelector(
+  const autocompleteSugestions = useAppSelector(
     (state) => state.search.autocompleteSuggestions
   );
 
@@ -29,13 +30,13 @@ export default function SearchBar() {
     setIsAutocompleteOpen(false);
   };
 
-  const onSubmit = (query) => {
+  const onSubmit = (query: string) => {
     if (query.trim()) {
       dispatch(fetchBooks(query));
     }
   };
 
-  const getAutocompleteSuggestions = (query) => {
+  const getAutocompleteSuggestions = (query: string) => {
     if (query.trim()) {
       dispatch(fetchAutocompleteSuggestions(query));
     }
@@ -47,30 +48,33 @@ export default function SearchBar() {
     [dispatch]
   );
 
-  const searchBooks = (query) => {
+  const searchBooks = (query: string) => {
     dispatch(clearAutocompleteSuggestion()); // clear current set of autocomplete options
     throttledOnSubmit(query); // fetch search results
     handleHideAutocomplete(); // hide menu
     setSelectedAutocompleteOptionIdx(-1); // reset active option
   };
 
-  const handleTextInputChange = (e) => {
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  const handleClickOutside = (e) => {
-    if (searchElRef.current && !searchElRef.current.contains(e.target)) {
+  const handleClickOutside = (e: MouseEvent) => {
+    if (
+      searchElRef.current &&
+      !searchElRef.current.contains(e.target as Node)
+    ) {
       handleHideAutocomplete();
     }
   };
 
-  const handleAutocompleteSubmit = (query) => {
+  const handleAutocompleteSubmit = (query: string) => {
     // Set the input value to the given query value and fire search.
     setInputValue(query); // update input box with selected title
     searchBooks(query);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       setSelectedAutocompleteOptionIdx((prev) => {
         // rollover to first item if at end, o.w. go to next item
@@ -98,12 +102,11 @@ export default function SearchBar() {
     }
   };
 
-  const handleMouseOverOption = (idx) => {
+  const handleMouseOverOption = (idx: number) => {
     setSelectedAutocompleteOptionIdx(idx);
   };
 
-  const handleClearSearchResults = (e) => {
-    e.preventDefault();
+  const handleClearSearchResults = () => {
     dispatch(clearFetchedResults());
     setInputValue("");
     handleHideAutocomplete();
@@ -137,12 +140,12 @@ export default function SearchBar() {
         <button
           type="submit"
           className="searchBar__submitBtn"
-          onClick={(e) => searchBooks(inputValue)}
+          onClick={() => searchBooks(inputValue)}
         >
           Submit
         </button>
         <button
-          type="clear"
+          type="reset"
           className="searchBar__clearBtn"
           onClick={handleClearSearchResults}
         >

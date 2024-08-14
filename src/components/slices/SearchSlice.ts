@@ -1,10 +1,11 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { Book } from "../../types/types";
 
 export const MAX_AUTOCOMPLETE_SUGGESTIONS = 10;
 
 export const fetchBooks = createAsyncThunk(
   "search/fetchBooks",
-  async (query, thunkAPI) => {
+  async (query: string, thunkAPI) => {
     thunkAPI.dispatch(startFetch());
     try {
       const response = await fetch(
@@ -23,7 +24,7 @@ export const fetchBooks = createAsyncThunk(
 
 export const fetchAutocompleteSuggestions = createAsyncThunk(
   "search/fetchAutocompleteSuggestions",
-  async (query, thunkAPI) => {
+  async (query: string, thunkAPI) => {
     try {
       const response = await fetch(
         `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=0&maxResults=20`
@@ -31,7 +32,7 @@ export const fetchAutocompleteSuggestions = createAsyncThunk(
       const data = await response.json();
       const books = data.items;
       const titles = books
-        .map((book) => book.volumeInfo.title)
+        .map((book: Book) => book.volumeInfo.title)
         .slice(0, MAX_AUTOCOMPLETE_SUGGESTIONS);
       thunkAPI.dispatch(saveAutocompleteSuggestion(titles));
     } catch (err) {
@@ -40,13 +41,21 @@ export const fetchAutocompleteSuggestions = createAsyncThunk(
   }
 );
 
+interface SearchState {
+  isFetching: boolean;
+  fetchedResults: Book[];
+  autocompleteSuggestions: string[];
+}
+
+const initialState: SearchState = {
+  isFetching: false,
+  fetchedResults: [],
+  autocompleteSuggestions: [],
+};
+
 const searchSlice = createSlice({
   name: "search",
-  initialState: {
-    isFetching: false,
-    fetchedResults: [],
-    autocompleteSuggestions: [],
-  },
+  initialState,
   reducers: {
     startFetch: (state) => {
       state.isFetching = true;
@@ -54,15 +63,15 @@ const searchSlice = createSlice({
     endFetch: (state) => {
       state.isFetching = false;
     },
-    saveFetchedResults: (state, action) => {
+    saveFetchedResults: (state, action: PayloadAction<Book[]>) => {
       // payload should be list of book objects
       state.fetchedResults = action.payload;
     },
     clearFetchedResults: (state) => {
       state.fetchedResults.length = 0;
     },
-    saveAutocompleteSuggestion: (state, action) => {
-      // payload is list of book titles (string)
+    saveAutocompleteSuggestion: (state, action: PayloadAction<string[]>) => {
+      // payload is list of book titles (strings)
       state.autocompleteSuggestions = action.payload;
     },
     clearAutocompleteSuggestion: (state) => {

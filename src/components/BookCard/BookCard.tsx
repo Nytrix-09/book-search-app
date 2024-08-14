@@ -1,6 +1,13 @@
 import React from "react";
+import "./BookCard.css";
+import { Book } from "../../types/types";
 
-export default function BookCard({ book, onAdd }) {
+interface BookCardProps {
+  book: Book;
+  onAdd: (book: Book) => void
+}
+
+const BookCard: React.FC<BookCardProps> = ({ book, onAdd }) => {
   const { imageLinks, title, authors, publisher, publishedDate, description } =
     book.volumeInfo;
 
@@ -21,3 +28,5 @@ export default function BookCard({ book, onAdd }) {
     </div>
   );
 }
+
+export default BookCard;
